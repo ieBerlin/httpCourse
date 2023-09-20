@@ -8,6 +8,31 @@ function normalizeURL(urlString) {
   }
   return hostPath;
 }
+async function crawlPage(currentURL) {
+  console.log(`actively crawling ${currentURL}`);
+
+  try {
+    const reponse = await fetch(currentURL);
+
+    if (reponse.status > 399) {
+      console.log(
+        `error in fetch status code : ${reponse.status}, on page : ${currentURL}`
+      );
+      return;
+    }
+
+    const contentType = reponse.headers.get("content-type");
+    if (!contentType.includes("text/html")) {
+      console.log(
+        `non html reponse, content type ${contentType}, on page : ${currentURL}`
+      );
+      return;
+    }
+    console.log(await reponse.text());
+  } catch (err) {
+    console.log(`error in fetch : ${err.message}, on page : ${currentURL}`);
+  }
+}
 
 function getURLsFromHTML(htmlbody, baseURL) {
   const urls = [];
@@ -38,4 +63,5 @@ function getURLsFromHTML(htmlbody, baseURL) {
 module.exports = {
   normalizeURL,
   getURLsFromHTML,
+  crawlPage,
 };
